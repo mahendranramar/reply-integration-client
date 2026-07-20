@@ -20,7 +20,7 @@ export class AuthService {
     try {
       // Register — returns the long-lived service accessToken for API calls.
       const serviceAuth = await tempClient.registerUser(email, password, name, orgId, projectId, website, accountId, appId);
-
+      
       await this.storage.setTenant({ domain, orgId, projectId, email, password, website, name });
       await this.storage.setAuth(serviceAuth);
       // Persist password so ensureToken can mint fresh bootstrap tokens on demand.
@@ -29,6 +29,7 @@ export class AuthService {
       const client = new KonnectifyClient({ domain, token: serviceAuth.accessToken });
       return { client, auth: serviceAuth };
     } catch (error) {
+      
       return tempClient.handleError("register", error);
     }
   }

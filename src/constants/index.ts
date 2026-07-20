@@ -90,8 +90,8 @@ export const SECONDARY_APP = {
 } as const;
 
 export const templateFolderId = 6 as const;
-export const orgId = "4" as const;
-export const projectId = "4" as const;
+export const orgId = "48" as const;
+export const projectId = "48" as const;
 
 // export const WORKFLOW_TEMPLATE_IDS = [3] as const;
 // export const WORKFLOW_TEMPLATE_IDS = [4] as const;

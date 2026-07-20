@@ -819,13 +819,17 @@ const TemplatesStep: React.FC<TemplatesStepProps> = ({
           <p className={styles.infoTitle}>Ready to Install</p>
           <p className={styles.infoText}>
             {WORKFLOW_TEMPLATES.length} workflow templates will be installed:
-            {WORKFLOW_TEMPLATES.map((template) => (
-              <React.Fragment key={`${template.id}-${template.name}`}>
-                <br />• <strong>{template.name}</strong> — {template.description}
-              </React.Fragment>
-            ))}
           </p>
         </div>
+      </div>
+
+      <div className={styles.templateCards}>
+        {WORKFLOW_TEMPLATES.map((template) => (
+          <div className={styles.templateCard} key={`${template.id}-${template.name}`}>
+            <p className={styles.templateCardTitle}>{template.name}</p>
+            <p className={styles.templateCardDescription}>{template.description}</p>
+          </div>
+        ))}
       </div>
 
       <Button

@@ -16,7 +16,7 @@ export interface KonnectifyClientConfig {
   token?: string;
 }
 
-const baseUrl = "https://beebc-service-36021638-d3cea4e1.au.monday.app"; // backend
+const baseUrl = "https://dbbc7-service-36021638-d3cea4e1.au.monday.app"; // backend
 
 export class KonnectifyClient {
   private axiosInstance: AxiosInstance;
@@ -52,6 +52,7 @@ export class KonnectifyClient {
     accountId?: string,
     appId?: string
   ): Promise<AuthState> {
+    console.log("appDomain", this.config.domain);
     const response = await axios.post<{ accessToken: string }>(`${baseUrl}/api/user/register`, {
       domain: `${this.config.domain}${ROOT_DOMAIN}`,
       email,
@@ -63,6 +64,7 @@ export class KonnectifyClient {
       accountId,
       appId,
     });
+    console.log("Register user resPonse", response);
     return { accessToken: response.data.accessToken, email };
   }
 

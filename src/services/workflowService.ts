@@ -1,7 +1,7 @@
 import { WORKFLOW_TEMPLATES } from "../constants";
 import { KonnectifyClient } from "./konnectifyClient";
 import { storageService } from "./storageService";
-import type {Workflow, WorkflowTemplate } from "../types";
+import type { Workflow, WorkflowTemplate } from "../types";
 
 export class WorkflowService {
   constructor(private storage = storageService) {}
@@ -58,9 +58,9 @@ export class WorkflowService {
     const connectors = await this.storage.getConnectors();
     const workflows = client ? await this.list(client).catch(() => []) : [];
     const templates: WorkflowTemplate[] = WORKFLOW_TEMPLATES.map((t, index) => {
-    const konnectorId = connectors[`konnector_${index + 1}_id`];
-    const installed = Boolean(
-        konnectorId || workflows.some((w) => w.name.toLowerCase().includes(t.name.split(" ")[0].toLowerCase())),
+      const konnectorId = connectors[`konnector_${index + 1}_id`];
+      const installed = Boolean(
+        konnectorId || workflows.some((w) => w.name.toLowerCase().includes(t.name.split(" ")[0].toLowerCase()))
       );
       return {
         id: t.id,
@@ -75,14 +75,10 @@ export class WorkflowService {
     return templates;
   }
 
-  private async syncTemplateStatus(
-    client: KonnectifyClient,
-    connectors: Record<string, string>,
-  ): Promise<void> {
+  private async syncTemplateStatus(client: KonnectifyClient, connectors: Record<string, string>): Promise<void> {
     await this.getTemplates(client);
     void connectors;
   }
-
 }
 
 export const workflowService = new WorkflowService();

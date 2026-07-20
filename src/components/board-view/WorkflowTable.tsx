@@ -25,6 +25,7 @@ export const WorkflowTable: React.FC = () => {
     isConfigured,
     ensureToken,
   } = useKonnectify();
+  //const { tenant, ensureToken, isConfigured } = useKonnectify();
   const { showToast, toastElement } = useToast();
 
   const [search, setSearch] = useState("");

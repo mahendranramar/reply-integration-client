@@ -4,12 +4,7 @@ import type { IframeDestination } from "../types";
 const UI_ROOT = `${ROOT_DOMAIN}${UI_PATH}`;
 
 export class IframeService {
-  buildBootstrapUrl(
-    domain: string,
-    destination: string,
-    token?: string,
-    extraParams?: Record<string, string>,
-  ): string {
+  buildBootstrapUrl(domain: string, destination: string, token?: string, extraParams?: Record<string, string>): string {
     const base = `https://${domain}${UI_ROOT}/bootstrap-page`;
     const params = new URLSearchParams();
     params.set("destination", destination);
@@ -30,23 +25,14 @@ export class IframeService {
     return `${base}?${params.toString()}`;
   }
 
-  buildDestinationUrl(
-    domain: string,
-    config: IframeDestination,
-    token?: string,
-    workflowIds?: string[],
-  ): string {
+  buildDestinationUrl(domain: string, config: IframeDestination, token?: string, workflowIds?: string[]): string {
     switch (config.type) {
       case "create":
         return this.buildBootstrapUrl(domain, "/konnectors/new", token);
       case "view":
       case "edit":
       case "preview":
-        return this.buildBootstrapUrl(
-          domain,
-          `/konnectors/${config.workflowId}`,
-          token,
-        );
+        return this.buildBootstrapUrl(domain, `/konnectors/${config.workflowId}`, token);
       case "history": {
         const filters = {
           filters: [
@@ -54,8 +40,7 @@ export class IframeService {
               logicalOperator: "AND",
               key: "konnectorId",
               operator: "in",
-              value:
-                workflowIds ?? (config.workflowId ? [config.workflowId] : []),
+              value: workflowIds ?? (config.workflowId ? [config.workflowId] : []),
             },
           ],
         };

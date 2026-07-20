@@ -459,11 +459,9 @@ body {
 .templateInfo {
   display: flex;
   gap: 16px;
-  padding: 20px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  margin-bottom: 24px;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .infoIcon {
@@ -485,6 +483,34 @@ body {
 }
 
 .infoText {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.templateCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.templateCard {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.templateCardTitle {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.templateCardDescription {
   margin: 0;
   font-size: 13px;
   color: var(--text-secondary);

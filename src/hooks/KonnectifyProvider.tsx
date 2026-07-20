@@ -89,7 +89,6 @@ export function KonnectifyProvider({ children }: { children: React.ReactNode }) 
       workflowService.getTemplates(null),
       tenantService.getSetupProgress(),
     ]);
-    
     setConnections(cachedConnections);
     setSetupProgress(cachedSetup);
     setTemplates(cachedTemplates);
