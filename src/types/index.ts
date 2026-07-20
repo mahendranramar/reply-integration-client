@@ -134,8 +134,7 @@ export interface IframeDestination {
 }
 
 export interface SecondaryAppCredentials {
-  domain: string;
-  apikey: string
+  api_key: string;
 }
 
 export interface BillingSummary {
@@ -183,5 +182,4 @@ export interface BillingCredits {
   overageUsed: number;
   periodEnd: Date
 }
-
 

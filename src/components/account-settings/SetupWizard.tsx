@@ -8,6 +8,7 @@ import {storageService} from "../../services/storageService";
 import styles from "./SetupWizard.module.css";
 import axios from 'axios';
 import mondaySdk from "monday-sdk-js";
+import type { SecondaryAppCredentials } from "../../types";
 const monday = mondaySdk();
 
 // SECONDARY_APP (the app paired with Monday — currently Chargebee) now lives
@@ -76,12 +77,12 @@ export const SetupWizard: React.FC = () => {
   });
   const [mondayApiToken, setMondayApiToken] = useState("");
   const [registrationComplete, setRegistrationComplete] = useState(false);
-  const [secondaryAppCredentials, setSecondaryAppCredentials] = useState({domain:"", apikey:""});
+  const [secondaryAppCredentials, setSecondaryAppCredentials] = useState<SecondaryAppCredentials>({ api_key: "" });
 
   const prefillSecondaryAppCredentials = async () => {
-    const fsCredentials = await storageService.getSecondaryAppCredentials();
+    const fsCredentials = await storageService.getSecondaryAppCredentials() as (SecondaryAppCredentials & { apikey?: string }) | null;
     if(fsCredentials){
-      setSecondaryAppCredentials(fsCredentials);
+      setSecondaryAppCredentials({ api_key: fsCredentials.api_key ?? fsCredentials.apikey ?? "" });
     }
   }
 
@@ -146,7 +147,7 @@ useEffect(() => {
     });
     setMondayApiToken("");
     setRegistrationComplete(false);
-    setSecondaryAppCredentials({ domain: "", apikey: "" });
+    setSecondaryAppCredentials({ api_key: "" });
     setIsMondayConnected(false);
     setIsSecondaryAppConnected(false);
     setSubmitting(false);
@@ -430,34 +431,30 @@ function pollForManualClose(win: Window) {
   }, 500);
 }
 
-  // ── Step 3: Secondary app (currently Chargebee) ─────────────────────────────
-  async function handleSecondaryAppConnect(domain: string, apiKey: string) {
+  // ── Step 3: Secondary app (currently Reply.io) ──────────────────────────────
+  async function handleSecondaryAppConnect(apiKey: string) {
     const secondaryAppConnection = connections?.find((c) => c.appId === SECONDARY_APP.appId) ?? null;
     clearError(SECONDARY_APP.key);
     setSubmitting(true);
     try {
       if (!client) throw new Error("Client not initialised");
+      const connectionData = {
+        api_key: apiKey,
+      };
       if(secondaryAppConnection){
         // edit connection flow
         const connectionId:string = secondaryAppConnection.id;
-        await connectionService.edit(client, connectionId, SECONDARY_APP.appId, SECONDARY_APP.connectionName, {
-          base_url:domain,
-          apiKey: apiKey,
-        });
+        await connectionService.edit(client, connectionId, SECONDARY_APP.appId, SECONDARY_APP.connectionName, connectionData);
       } else {
         // create connection flow
-        await connectionService.create(client, SECONDARY_APP.appId, SECONDARY_APP.connectionName, {
-          base_url:domain,
-          apiKey: apiKey,
-        });
+        await connectionService.create(client, SECONDARY_APP.appId, SECONDARY_APP.connectionName, connectionData);
       }
       setIsSecondaryAppConnected(true);
       await refreshConnections();
       const newCompleted = Array.from(new Set([...(setupProgress.completedSteps ?? []), 3]));
       await updateSetupProgress({ currentStep: 4, completedSteps: newCompleted });
       const credentialsToStore = {
-        domain: domain,
-        apikey: apiKey
+        api_key: apiKey
       };
       await storageService.setSecondaryAppCredentials(credentialsToStore);
       advance(SECONDARY_APP.key);
@@ -722,17 +719,11 @@ const MondayStep: React.FC<MondayStepProps> = ({ onConnect, submitting, error, i
 // is hardcoded here.
 
 interface SecondaryAppStepProps {
-  onConnect: (domain: string, apiKey: string) => Promise<void>;
+  onConnect: (apiKey: string) => Promise<void>;
   submitting: boolean;
   error: string;
-  credentials: {
-    domain:string,
-    apikey:string
-  } ;
-  setCredentials: React.Dispatch<React.SetStateAction<{
-    domain: string;
-    apikey: string;
-}>>
+  credentials: SecondaryAppCredentials;
+  setCredentials: React.Dispatch<React.SetStateAction<SecondaryAppCredentials>>
   isConnected: boolean
 }
 
@@ -740,7 +731,7 @@ const SecondaryAppStep: React.FC<SecondaryAppStepProps> = ({ onConnect, submitti
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onConnect(credentials.domain.trim(), credentials.apikey.trim());
+    await onConnect(credentials.api_key.trim());
   };
 
   return (
@@ -761,32 +752,14 @@ const SecondaryAppStep: React.FC<SecondaryAppStepProps> = ({ onConnect, submitti
 
       <form onSubmit={(e) => void handleSubmit(e)} className={styles.form}>
         <div className={styles.formGroup}>
-          <label className={styles.formLabel}>{SECONDARY_APP.domainFieldLabel}</label>
-          <div className={styles.inputWrapper}>
-            <Globe size={18} />
-            <input
-              type="text"
-              placeholder={SECONDARY_APP.domainPlaceholder}
-              value={credentials.domain}
-              onChange={(e) => setCredentials( prev => ({...prev, domain: e.target.value}))}
-              disabled={submitting || isConnected}
-            />
-            <span className={styles.domainSuffix}></span>
-          </div>
-          <Text type="text3" color="secondary" style={{ marginTop: 4 }}>
-            {SECONDARY_APP.domainHelpText}
-          </Text>
-        </div>
-
-        <div className={styles.formGroup}>
           <label className={styles.formLabel}>API Key</label>
           <div className={styles.inputWrapper}>
             <Locked size={18} />
             <input
               type="password"
-              placeholder="Paste your API key here…"
-              value={credentials.apikey}
-              onChange={(e) => setCredentials( prev => ({...prev, apikey: e.target.value}))}
+              placeholder="Paste your API key here..."
+              value={credentials.api_key}
+              onChange={(e) => setCredentials( prev => ({...prev, api_key: e.target.value}))}
               disabled={submitting || isConnected}
             />
           </div>
@@ -799,7 +772,7 @@ const SecondaryAppStep: React.FC<SecondaryAppStepProps> = ({ onConnect, submitti
           kind="primary"
           type="submit"
           loading={submitting}
-          disabled={submitting || !credentials.domain.trim() || !credentials.apikey.trim() || isConnected}
+          disabled={submitting || !credentials.api_key.trim() || isConnected}
           style={{ width: "100%", marginTop: 8 }}
         >
           {isConnected ? SECONDARY_APP.connectedButtonText : SECONDARY_APP.connectButtonText}
@@ -943,7 +916,6 @@ const CompleteStep: React.FC = () => {
           label={SECONDARY_APP.displayName}
           connection={secondaryAppConn}
           fields={[
-            { key: "domain", label: "Domain", type: "text", suffix: SECONDARY_APP.domainSuffix },
             { key: "api_key", label: "API Key", type: "password" },
           ]}
           appId={SECONDARY_APP.appId}
