@@ -41,7 +41,7 @@
 
 // =========================================================================================
 
-export const ROOT_DOMAIN = ".prestaging.us.konnectify.dev"; // .prestaging.us.konnectify.dev | .stack5.us.konnectify.dev
+export const ROOT_DOMAIN = ".konnectifyapp.co"; // .prestaging.us.konnectify.dev | .stack5.us.konnectify.dev
 export const API_PATH = "/ipaas/api";
 export const UI_PATH = "/ipaas/ui";
 
@@ -90,8 +90,8 @@ export const SECONDARY_APP = {
 } as const;
 
 export const templateFolderId = 6 as const;
-export const orgId = "48" as const;
-export const projectId = "48" as const;
+export const orgId = "27" as const;
+export const projectId = "27" as const;
 
 // export const WORKFLOW_TEMPLATE_IDS = [3] as const;
 // export const WORKFLOW_TEMPLATE_IDS = [4] as const;

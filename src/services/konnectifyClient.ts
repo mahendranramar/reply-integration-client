@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from "axios";
-import { orgId, ROOT_DOMAIN } from "../constants";
+import { ROOT_DOMAIN, orgId } from "../constants";
 import type {
   AuthState,
   Connection,
@@ -17,11 +17,22 @@ export interface KonnectifyClientConfig {
   token?: string;
 }
 
-const baseUrl = "https://fa286-service-36109712-ba7ff864.au.monday.app"; // backend
+const baseUrl = "https://a5189-service-35433930-c1bf8340.us.monday.app"; // backend
 
 export class KonnectifyClient {
   private axiosInstance: AxiosInstance;
   private config: KonnectifyClientConfig;
+  private refreshPromise: Promise<AuthState> | null = null;
+
+  private refreshToken(email: string, password: string): Promise<AuthState> {
+    if (!this.refreshPromise) {
+      // to prevent making concurrent api calls for login
+      this.refreshPromise = this.login(email, password, orgId).finally(() => {
+        this.refreshPromise = null;
+      });
+    }
+    return this.refreshPromise;
+  }
 
   constructor(config: KonnectifyClientConfig) {
     this.config = config;
@@ -29,6 +40,7 @@ export class KonnectifyClient {
       baseURL: ` ${baseUrl}/api`,
       headers: { "Content-Type": "application/json" },
     });
+
     // handle access token expiry
     this.axiosInstance.interceptors.response.use(
       (res) => res,
@@ -41,7 +53,7 @@ export class KonnectifyClient {
           const email = tenant?.email ? tenant.email : "";
           const password = tenant?.password ? tenant.password : "";
           if (email && password) {
-            const fresh = await this.login(email, password, orgId);
+            const fresh = await this.refreshToken(email, password);
             this.setAuthToken(fresh.accessToken);
             await storageService.setAuth(fresh);
             original.data = JSON.parse(original.data || "{}");
@@ -65,6 +77,7 @@ export class KonnectifyClient {
   }
 
   setAuthToken(token: string): void {
+    // console.log("setting new access token", token);
     this.config.token = token;
   }
 
@@ -78,7 +91,6 @@ export class KonnectifyClient {
     accountId?: string,
     appId?: string
   ): Promise<AuthState> {
-    console.log("appDomain", this.config.domain);
     const response = await axios.post<{ accessToken: string }>(`${baseUrl}/api/user/register`, {
       domain: `${this.config.domain}${ROOT_DOMAIN}`,
       email,
@@ -90,7 +102,6 @@ export class KonnectifyClient {
       accountId,
       appId,
     });
-    console.log("Register user resPonse", response);
     return { accessToken: response.data.accessToken, email };
   }
 
@@ -285,7 +296,7 @@ export class KonnectifyClient {
         token,
       };
     }
-
+    console.log("monday body for fetching oauth url", body);
     const response = await this.axiosInstance.post<{
       data: {
         data: {

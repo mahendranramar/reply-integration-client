@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button, Loader, Text } from "@vibe/core";
-import { Check, Email, Globe, Locked, Person, Warning } from "@vibe/icons";
+import { Check, Email, Globe, Hide, Locked, Person, Show, Warning } from "@vibe/icons";
 import { useKonnectify } from "../../hooks";
 import { APP_IDS, SECONDARY_APP, templateFolderId, WORKFLOW_TEMPLATES } from "../../constants";
 import { connectionService } from "../../services/connectionService";
@@ -504,6 +504,7 @@ interface AuthForm {
 const AuthStep: React.FC<AuthStepProps> = ({ onSubmit, submitting, error, form, setForm, registrationComplete }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = () => {
     if (!form.domain.trim()) return "Domain is required";
@@ -590,12 +591,22 @@ const AuthStep: React.FC<AuthStepProps> = ({ onSubmit, submitting, error, form, 
           <div className={styles.inputWrapper}>
             <Locked size={18} />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
               disabled={submitting || registrationComplete}
             />
+            <button
+              type="button"
+              className={styles.passwordToggle}
+              onClick={() => setShowPassword((prev) => !prev)}
+              disabled={submitting || registrationComplete}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              title={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <Hide size={18} /> : <Show size={18} />}
+            </button>
           </div>
         </div>
 

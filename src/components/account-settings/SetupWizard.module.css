@@ -289,6 +289,38 @@ body {
   color: var(--text-muted);
 }
 
+.passwordToggle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.passwordToggle:hover:not(:disabled),
+.passwordToggle:focus-visible {
+  background: var(--bg-hover);
+  color: var(--primary);
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid rgba(0, 115, 234, 0.35);
+  outline-offset: 1px;
+}
+
+.passwordToggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .domainSuffix {
   color: var(--text-muted);
   font-size: 13px;
